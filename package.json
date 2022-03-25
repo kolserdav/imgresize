@@ -1,0 +1,39 @@
+{
+  "name": "imgresize",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/kolserdav/imgresize.git",
+  "author": "kolserdav <serega12101983@gmail.com>",
+  "license": "MIT",
+  "bin": {
+    "crpack": "./bin/imageresize.js"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.1",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "sharp": "^0.30.3"
+  },
+  "fhead": {
+    "root": "src",
+    "repository": "https://github.com/kolserdav/imageresize.git",
+    "patterns": [
+      ".js"
+    ],
+    "exclude": [],
+    "name": "Sergey Kolmiller",
+    "email": "serega12101983@gmail.com",
+    "license": "MIT",
+    "licenseText": "The code is distributed as is. There are no guarantees regarding the functionality of the code or parts of it.",
+    "copyright": "kolserdav, All rights reserved (c)",
+    "renewAll": true
+  }
+}

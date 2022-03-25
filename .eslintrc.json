@@ -1,0 +1,16 @@
+{
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "eslint-config-prettier", "prettier"],
+  "plugins": ["prettier", "@typescript-eslint", "eslint-plugin-prettier"],
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "ignorePatterns": ["node_modules"],
+  "rules": {
+    "no-unused-vars": 1,
+    "prettier/prettier": 1
+  }
+}
