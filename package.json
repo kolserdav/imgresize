@@ -5,8 +5,17 @@
   "repository": "https://github.com/kolserdav/imgresize.git",
   "author": "kolserdav <serega12101983@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "image",
+    "resize",
+    "sharp"
+  ],
   "bin": {
-    "crpack": "./bin/imageresize.js"
+    "imgresize": "./bin/imgresize.js"
+  },
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "node index.js"
   },
   "devDependencies": {
     "@types/node": "^17.0.23",
@@ -24,7 +33,7 @@
   },
   "fhead": {
     "root": "src",
-    "repository": "https://github.com/kolserdav/imageresize.git",
+    "repository": "https://github.com/kolserdav/imgresize.git",
     "patterns": [
       ".js"
     ],

@@ -1,45 +1,19 @@
 // @ts-check
 const fs = require('fs');
+const path = require('path');
 const sharp = require('sharp');
 
 const ROOT_PATH = process.cwd();
+const { argv } = process;
 
 /**
- * Image sizes interface
- * @typedef {{
- * full: number | undefined;
- * fourK: number;
- * desktop: number;
- * tablet: number;
- * mobile: number;
- * small: number;
- * }} ImagePreview
- */
-
-/**
- * Image interface
- * @typedef {{
- *  id: number
- *  fieldname: string
- *  originalname: string
- *  encoding: string
- *  mimetype: string
- *  destination: string
- *  origin: string
- *  filename: string
- *  path: string
- *  size: number
- *  width: number
- *  height: number
- *  updated_at: Date
- *  created_at: Date
- *  parentId: number | null
- * }} Image
+ * Image resize config interface
+ * @typedef {Record<string, number>} ImageResize
  */
 
 /**
  * Constants of preview sizes
- * @type {ImagePreview}
+ * @type {ImageResize}
  */
 const IMAGE_PREVIEW = {
   full: undefined,
@@ -51,24 +25,121 @@ const IMAGE_PREVIEW = {
 };
 
 /**
+ * Get user params
+ * @returns {Promise<{
+ *  sourcePath: string;
+ *  destination: string;
+ *  imgresize: ImageResize;
+ *  width: number;
+ * }>}
+ */
+const getOptions = async () => {
+  let sourcePath = '';
+  let destination = '';
+  let width = 0;
+  for (let i = 2; argv[i]; i++) {
+    const arg = argv[i];
+    switch (arg) {
+      case '--help':
+        console.info(`
+[INFO]
+Image resize client
+Example:
+  imgresize [option] value 
+Options:
+      --path - source image path 
+      --out - destination path 
+        `);
+        process.exit(0);
+        break;
+      case '--path':
+        if (!argv[i + 1]) {
+          throw `[ERROR] Source path must be specified. Received ${argv[i + 1]}`;
+        }
+        sourcePath = argv[i + 1];
+        break;
+      case '--out':
+        if (!argv[i + 1]) {
+          throw `[ERROR] Source path must be specified. Received ${argv[i + 1]}`;
+        }
+        destination = argv[i + 1];
+        break;
+      default:
+        if (argv[i - 1] !== '--path' && argv[i - 1] !== '--out') {
+          throw `[ERROR] Command ${argv[i]}, is missing. Try run "imageresize -h".`;
+        }
+        break;
+    }
+  }
+  // Read package.json config
+  /**
+   * @type {ImageResize}
+   */
+  let imgresize = IMAGE_PREVIEW;
+  try {
+    const data = fs.readFileSync(path.resolve(ROOT_PATH, 'package.json')).toString();
+    /**
+     * @type {any}
+     */
+    const _packageJson = JSON.parse(data);
+    if (!_packageJson.imgresize) {
+      console.warn('[WARNING] Property "imgresize" is missing on package.json. Used default sizes');
+    } else {
+      imgresize = _packageJson.imgresize;
+    }
+  } catch (err) {
+    console.warn('[WARNING] Package json file is missing. Used default sizes');
+  }
+  const _sourcePath = /:/.test(sourcePath) ? sourcePath : path.resolve(ROOT_PATH, sourcePath);
+  try {
+    const data = fs.readFileSync(_sourcePath);
+    const image = sharp(data);
+    const metadata = await image.metadata();
+    width = metadata.width;
+  } catch (err) {
+    console.error('[ERROR] Source file', _sourcePath, 'is missing', err);
+    process.exit(1);
+  }
+  const _destination = /:/.test(destination) ? destination : path.resolve(ROOT_PATH, destination);
+  try {
+    fs.statSync(_destination);
+  } catch (err) {
+    try {
+      fs.mkdirSync(_destination);
+    } catch (err) {
+      console.error('[ERROR] Can not create directory', _destination);
+      process.exit(1);
+    }
+    console.error('[ERROR] Destination path is not accepted', _destination, err);
+    process.exit(1);
+  }
+  return {
+    sourcePath,
+    destination,
+    imgresize,
+    width,
+  };
+};
+
+/**
  *  Created previews when loaded image
- *  @param {Image} image
  *  @returns {Promise<1 | 0>}
  */
-export const createImagePreviews = async (image) => {
-  const { width, path, destination, filename } = image;
-  const type = filename.match(/\.[a-zA-Z]{3,4}$/);
+const createImagePreviews = async () => {
+  const options = await getOptions();
+  const { sourcePath, destination, imgresize, width } = options;
+  const type = sourcePath.match(/\.[a-zA-Z]{3,4}$/);
   const fileType = type ? type[0] : '';
   /**
    * @type {any[]}
    */
-  const keys = Object.keys(IMAGE_PREVIEW);
+  const keys = Object.keys(imgresize);
   let i = 0;
   let errors = 0;
   while (i < keys.length) {
     i++;
     /**
-     * @type {keyof ImagePreview}
+     * @type {keyof ImageResize}
      */
     const key = keys[i];
     const imagePreview = getImagePreview(width);
@@ -76,8 +147,8 @@ export const createImagePreviews = async (image) => {
       if (
         await createImagePreview({
           width: imagePreview[key],
-          path: `${ROOT_PATH}/${path}`,
-          dest: `${ROOT_PATH}/${destination}/${key}${fileType}`,
+          path: sourcePath,
+          dest: destination,
         })
       ) {
         errors++;
@@ -94,7 +165,7 @@ export const createImagePreviews = async (image) => {
 /**
  * Get previews size
  * @param {number} width
- * @returns {ImagePreview}
+ * @returns {ImageResize}
  */
 const getImagePreview = (width) => {
   /**
@@ -102,7 +173,7 @@ const getImagePreview = (width) => {
    */
   const keys = Object.keys(IMAGE_PREVIEW);
   /**
-   * @type {Array<keyof ImagePreview>}
+   * @type {Array<keyof ImageResize>}
    */
   const _keys = keys;
   const imagePreview = { ...IMAGE_PREVIEW };
@@ -137,3 +208,7 @@ const createImagePreview = async ({ path, width, dest }) => {
       });
   });
 };
+
+(async () => {
+  await createImagePreviews();
+})();
