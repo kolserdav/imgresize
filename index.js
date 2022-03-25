@@ -90,6 +90,9 @@ Options:
   } catch (err) {
     console.warn('[WARNING] Package json file is missing. Used default sizes');
   }
+  if (!sourcePath) {
+    throw '[ERROR] Source image path not set';
+  }
   const _sourcePath = /:/.test(sourcePath) ? sourcePath : path.resolve(ROOT_PATH, sourcePath);
   try {
     const data = fs.readFileSync(_sourcePath);
@@ -100,6 +103,7 @@ Options:
     console.error('[ERROR] Source file', _sourcePath, 'is missing', err);
     process.exit(1);
   }
+  destination = destination || './imgresize';
   const _destination = /:/.test(destination) ? destination : path.resolve(ROOT_PATH, destination);
   try {
     fs.statSync(_destination);
@@ -111,10 +115,6 @@ Options:
       process.exit(1);
     }
   }
-  if (!sourcePath) {
-    throw '[ERROR] Source image path not set';
-  }
-  destination = destination || '.';
   return {
     sourcePath: path.normalize(_sourcePath),
     destination: path.normalize(_destination),
@@ -157,7 +157,6 @@ const createImagePreviews = async () => {
         errors++;
       }
     }
-    console.log(key, imgresize);
     if (key === 'full' || key === undefined) {
       try {
         fs.cpSync(sourcePath, path.normalize(path.resolve(destination, `full${fileType}`)));
@@ -223,6 +222,6 @@ const createImagePreview = async ({ path, width, dest }) => {
 
 (async () => {
   console.info('[INFO] Starting image resize script...');
-  await createImagePreviews();
-  console.info('[INFO] Image resize script end.');
+  const code = await createImagePreviews();
+  console.info('[INFO] Image resize script end with code:', code);
 })();
