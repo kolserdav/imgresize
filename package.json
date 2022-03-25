@@ -5,6 +5,7 @@
   "repository": "https://github.com/kolserdav/imgresize.git",
   "author": "kolserdav <serega12101983@gmail.com>",
   "license": "MIT",
+  "private": false,
   "keywords": [
     "image",
     "resize",
@@ -29,7 +30,7 @@
     "typescript": "^4.6.3"
   },
   "imgresize": {
-    "full": null,
+  
 
   },
   "dependencies": {
