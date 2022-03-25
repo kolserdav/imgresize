@@ -214,7 +214,7 @@ const createImagePreview = async ({ path, width, dest }) => {
         resolve(0);
       })
       .catch((e) => {
-        console.error(e, 'Error resize image', path);
+        console.error('[ERROR]', 'Error resize image', { path }, e);
         resolve(1);
       });
   });
