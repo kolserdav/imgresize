@@ -1,6 +1,6 @@
 {
   "name": "@kolserdav/imgresize",
-  "version": "0.0.3",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": "https://github.com/kolserdav/imgresize.git",
   "author": "kolserdav <serega12101983@gmail.com>",
@@ -14,9 +14,15 @@
   "bin": {
     "imgresize": "./bin/imgresize.js"
   },
+  "imgresize": { 
+    "full": null,
+    "desktop": 1920,
+    "mobile": 760
+  },
   "scripts": {
     "start": "nodemon index.js",
-    "test": "node index.js"
+    "test": "node index.js",
+    "imgresize": "imgresize"
   },
   "devDependencies": {
     "@kolserdav/imgresize": "^0.0.1",
@@ -30,7 +36,6 @@
     "prettier": "^2.6.1",
     "typescript": "^4.6.3"
   },
-  "imgresize": {},
   "dependencies": {
     "sharp": "^0.30.3"
   },

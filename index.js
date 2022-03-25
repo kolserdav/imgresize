@@ -16,7 +16,7 @@ const { argv } = process;
  * @type {ImageResize}
  */
 const IMAGE_PREVIEW = {
-  full: undefined,
+  full: null,
   fourK: 3840,
   desktop: 1920,
   tablet: 1024,
@@ -107,15 +107,17 @@ Options:
     try {
       fs.mkdirSync(_destination);
     } catch (err) {
-      console.error('[ERROR] Can not create directory', _destination);
+      console.error('[ERROR] Can not create directory or directory is missing', _destination);
       process.exit(1);
     }
-    console.error('[ERROR] Destination path is not accepted', _destination, err);
-    process.exit(1);
   }
+  if (!sourcePath) {
+    throw '[ERROR] Source image path not set';
+  }
+  destination = destination || '.';
   return {
-    sourcePath,
-    destination,
+    sourcePath: path.normalize(_sourcePath),
+    destination: path.normalize(_destination),
     imgresize,
     width,
   };
@@ -127,6 +129,7 @@ Options:
  */
 const createImagePreviews = async () => {
   const options = await getOptions();
+  console.info('[INFO]', options);
   const { sourcePath, destination, imgresize, width } = options;
   const type = sourcePath.match(/\.[a-zA-Z]{3,4}$/);
   const fileType = type ? type[0] : '';
@@ -148,10 +151,19 @@ const createImagePreviews = async () => {
         await createImagePreview({
           width: imagePreview[key],
           path: sourcePath,
-          dest: destination,
+          dest: path.normalize(path.resolve(destination, `${key}.${fileType}`)),
         })
       ) {
         errors++;
+      }
+    }
+    console.log(key, imgresize);
+    if (key === 'full' || key === undefined) {
+      try {
+        fs.cpSync(sourcePath, path.normalize(path.resolve(destination, `full${fileType}`)));
+      } catch (err) {
+        console.error('[ERROR] Can not copy source to full destination');
+        return 1;
       }
     }
   }
@@ -210,5 +222,7 @@ const createImagePreview = async ({ path, width, dest }) => {
 };
 
 (async () => {
+  console.info('[INFO] Starting image resize script...');
   await createImagePreviews();
+  console.info('[INFO] Image resize script end.');
 })();
