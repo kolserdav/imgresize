@@ -48,7 +48,7 @@ Example:
   imgresize [option] value 
 Options:
       --path - source image path 
-      --out - destination path 
+      --out - destination path [./imgresize] 
         `);
         process.exit(0);
         break;
