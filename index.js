@@ -54,19 +54,22 @@ Options:
         break;
       case '--path':
         if (!argv[i + 1]) {
-          throw `[ERROR] Source path must be specified. Received ${argv[i + 1]}`;
+          console.error(`[ERROR] Source path must be specified. Received ${argv[i + 1]}`);
+          process.exit(1);
         }
         sourcePath = argv[i + 1];
         break;
       case '--out':
         if (!argv[i + 1]) {
-          throw `[ERROR] Source path must be specified. Received ${argv[i + 1]}`;
+          console.error(`[ERROR] Source path must be specified. Received ${argv[i + 1]}`);
+          process.exit(1);
         }
         destination = argv[i + 1];
         break;
       default:
         if (argv[i - 1] !== '--path' && argv[i - 1] !== '--out') {
-          throw `[ERROR] Command ${argv[i]}, is missing. Try run "imageresize -h".`;
+          console.error(`[ERROR] Command ${argv[i]}, is missing. Try run "imageresize --help".`);
+          process.exit(1);
         }
         break;
     }
@@ -91,7 +94,8 @@ Options:
     console.warn('[WARNING] Package json file is missing. Used default sizes');
   }
   if (!sourcePath) {
-    throw '[ERROR] Source image path not set';
+    console.error('[ERROR] Source image path not set');
+    process.exit(1);
   }
   const _sourcePath = /:/.test(sourcePath) ? sourcePath : path.resolve(ROOT_PATH, sourcePath);
   try {
@@ -145,13 +149,13 @@ const createImagePreviews = async () => {
      * @type {keyof ImageResize}
      */
     const key = keys[i];
-    const imagePreview = getImagePreview(width);
+    const imagePreview = getImagePreview(width, imgresize);
     if (key && key !== 'full') {
       if (
         await createImagePreview({
           width: imagePreview[key],
           path: sourcePath,
-          dest: path.normalize(path.resolve(destination, `${key}.${fileType}`)),
+          dest: path.normalize(path.resolve(destination, `${key}${fileType}`)),
         })
       ) {
         errors++;
@@ -167,7 +171,7 @@ const createImagePreviews = async () => {
     }
   }
   if (errors) {
-    console.error('Error create image preview. Errors:', errors);
+    console.error('[ERROR] Can not create image preview. Errors:', errors);
     return 1;
   }
   return 0;
@@ -176,23 +180,22 @@ const createImagePreviews = async () => {
 /**
  * Get previews size
  * @param {number} width
+ * @param {ImageResize} imgresize
  * @returns {ImageResize}
  */
-const getImagePreview = (width) => {
+const getImagePreview = (width, imgresize) => {
   /**
    * @type {any[]}
    */
-  const keys = Object.keys(IMAGE_PREVIEW);
+  const keys = Object.keys(imgresize);
   /**
    * @type {Array<keyof ImageResize>}
    */
   const _keys = keys;
-  const imagePreview = { ...IMAGE_PREVIEW };
+  const imagePreview = { ...imgresize };
   _keys.map((item) => {
     if (item && item !== 'full') {
-      if (IMAGE_PREVIEW[item] < width) {
-        imagePreview[item] = imagePreview[item];
-      } else {
+      if (IMAGE_PREVIEW[item] >= width) {
         imagePreview[item] = width;
       }
     }
