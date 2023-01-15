@@ -1,3 +1,13 @@
+/******************************************************************************************
+ * Repository: https://github.com/kolserdav/imgresize.git
+ * File name: index.js
+ * Author: Sergey Kolmiller
+ * Email: <serega12101983@gmail.com>
+ * License: MIT
+ * License text: The code is distributed as is. There are no guarantees regarding the functionality of the code or parts of it.
+ * Copyright: kolserdav, All rights reserved (c)
+ * Create Date: Sun Jan 15 2023 11:34:35 GMT+0700 (Krasnoyarsk Standard Time)
+ ******************************************************************************************/
 // @ts-check
 const fs = require('fs');
 const path = require('path');
@@ -16,7 +26,7 @@ const { argv } = process;
  * @type {ImageResize}
  */
 const IMAGE_PREVIEW = {
-  full: null,
+  full: 0,
   fourK: 3840,
   desktop: 1920,
   tablet: 1024,
@@ -102,7 +112,11 @@ Options:
     const data = fs.readFileSync(_sourcePath);
     const image = sharp(data);
     const metadata = await image.metadata();
-    width = metadata.width;
+    if (metadata.width) {
+      width = metadata.width;
+    } else {
+      console.warn('[WARN] Metadata width is undefined', { metadata });
+    }
   } catch (err) {
     console.error('[ERROR] Source file', _sourcePath, 'is missing', err);
     process.exit(1);
@@ -222,6 +236,8 @@ const createImagePreview = async ({ path, width, dest }) => {
       });
   });
 };
+
+module.exports = { createImagePreview };
 
 (async () => {
   console.info('[INFO] Starting image resize script...');
