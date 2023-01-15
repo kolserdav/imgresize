@@ -28,7 +28,7 @@
     "start": "nodemon index.js",
     "test": "node index.js",
     "build": "tsc -p .",
-    "imgresize": "imgresize"
+    "test:import": "node examples/import.js"
   },
   "devDependencies": {
     "@types/node": "^17.0.23",
