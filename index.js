@@ -237,12 +237,8 @@ const createImagePreview = async ({ path, width, dest }) => {
   });
 };
 
-if (require.main === module) {
-  (async () => {
-    console.info('[INFO] Starting image resize script...');
-    const code = await createImagePreviews();
-    console.info('[INFO] Image resize script end with code:', code);
-  })();
-} else {
-  module.exports = { createImagePreview };
-}
+(async () => {
+  console.info('[INFO] Starting image resize script...');
+  const code = await createImagePreviews();
+  console.info('[INFO] Image resize script end with code:', code);
+})();
